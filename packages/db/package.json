@@ -1,0 +1,16 @@
+{
+  "name": "@gloov/db",
+  "version": "0.0.0",
+  "private": true,
+  "main": "index.ts",
+  "types": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "prisma": "^6.8.2"
+  },
+  "dependencies": {
+    "@prisma/client": "6.8.2",
+    "typescript": "5.7.3"
+  }
+}

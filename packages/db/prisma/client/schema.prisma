@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(ulid())
+
+  name         String
+  email        String  @unique
+  image        String?
+  passwordHash String
+
+  session     Session?
+  collections Collection[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Session {
+  id String @id @default(ulid())
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  expiresAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("sessions")
+}
+
+model Collection {
+  id String @id @default(ulid())
+
+  name     String
+  iconName String @default("FilmSlate")
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  videos   Videos[]
+  apiKey   ApiKey?
+  webhooks WebHook[]
+
+  @@map("collections")
+}
+
+enum VideoStatus {
+  PENDING
+  PROCESSING
+  READY
+  FAILED
+}
+
+model Videos {
+  id String @id @default(ulid())
+
+  title       String
+  description String?
+
+  location          String?
+  thumbnailLocation String?
+  streamLocation    String?
+  durationInSeconds Int     @default(0)
+  sizeInBytes       Int     @default(0)
+
+  status VideoStatus @default(PENDING)
+
+  collectionId String
+  collection   Collection @relation(fields: [collectionId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  processor VideoProcessor?
+
+  @@map("videos")
+}
+
+model VideoProcessor {
+  id String @id @default(ulid())
+
+  tmpLocation String
+
+  videoId String @unique
+  video   Videos @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("video_processors")
+}
+
+model ApiKey {
+  id String @id @default(ulid())
+
+  key String @unique @default(cuid())
+
+  collectionId String     @unique
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("api_keys")
+}
+
+enum WebHookType {
+  VIDEO_CREATED
+  VIDEO_DELETED
+  VIDEO_UPDATED
+}
+
+enum WebHookHTTPMethods {
+  POST
+  PUT
+  PATCH
+  DELETE
+}
+
+model WebHook {
+  id String @id @default(ulid())
+
+  type       WebHookType
+  url        String
+  httpMethod WebHookHTTPMethods @default(POST)
+
+  collectionId String
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@unique([type, collectionId])
+  @@map("webhooks")
+}
