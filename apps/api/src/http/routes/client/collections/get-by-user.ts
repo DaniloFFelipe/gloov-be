@@ -17,6 +17,7 @@ export const getCollectionByUser: FastifyPluginAsyncZod = async app => {
               z.object({
                 id: z.string(),
                 name: z.string(),
+                iconName: z.string(),
                 createdAt: z.coerce.date(),
 
                 meta: z.object({
@@ -53,6 +54,7 @@ export const getCollectionByUser: FastifyPluginAsyncZod = async app => {
             id: collection.id,
             name: collection.name,
             createdAt: collection.createdAt,
+            iconName: collection.iconName,
             meta: {
               videosCount: collection._count.videos,
               storageSizeInBytes: await app.storage.getFolderSize(

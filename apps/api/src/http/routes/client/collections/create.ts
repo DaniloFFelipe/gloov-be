@@ -20,6 +20,8 @@ export const createCollection: FastifyPluginAsyncZod = async app => {
         response: {
           201: z.object({
             collectionId: z.string(),
+            collectionName: z.string(),
+            collectionIconName: z.string(),
           }),
         },
       },
@@ -49,6 +51,8 @@ export const createCollection: FastifyPluginAsyncZod = async app => {
 
       return reply.status(201).send({
         collectionId: collection.id,
+        collectionName: collection.name,
+        collectionIconName: collection.iconName,
       })
     }
   )
